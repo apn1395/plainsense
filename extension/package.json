@@ -1,0 +1,16 @@
+{
+  "name": "plainsense-extension",
+  "version": "1.0.0",
+  "description": "AI-powered financial news analysis Chrome extension",
+  "private": true,
+  "scripts": {
+    "build": "echo \"No build step required yet\"",
+    "package": "zip -r plainsense.zip . -x '*.git*' -x 'node_modules/*' -x 'package*.json'"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.260"
+  }
+} 

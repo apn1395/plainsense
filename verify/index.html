@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PlainSense - Email Verification</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f3f4f6;
+        }
+        .container {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            margin: 16px;
+        }
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 24px;
+        }
+        h1 {
+            color: #1a1a1a;
+            margin: 0 0 16px 0;
+            font-size: 24px;
+        }
+        p {
+            color: #4b5563;
+            line-height: 1.6;
+            margin: 0 0 24px 0;
+        }
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-radius: 50%;
+            border-top: 3px solid #2563eb;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .success-icon {
+            color: #059669;
+            font-size: 48px;
+            margin-bottom: 24px;
+        }
+        .error-icon {
+            color: #dc2626;
+            font-size: 48px;
+            margin-bottom: 24px;
+        }
+        .button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        .error-message {
+            color: #dc2626;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/logo.svg" alt="PlainSense" class="logo">
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>Verifying your email...</p>
+        </div>
+        <div id="success" style="display: none;">
+            <div class="success-icon">✓</div>
+            <h1>Email Verified!</h1>
+            <p>Your email has been successfully verified. You can now use PlainSense.</p>
+            <a href="chrome-extension://afejjkbjgpkomfkceilbagjcpijhanhm/popup.html" class="button" id="open-extension">
+                Open PlainSense
+            </a>
+        </div>
+        <div id="error" style="display: none;">
+            <div class="error-icon">✕</div>
+            <h1>Verification Failed</h1>
+            <p id="error-message">There was an error verifying your email.</p>
+            <button onclick="location.reload()" class="button">Try Again</button>
+        </div>
+    </div>
+    <script>
+        const SUPABASE_URL = 'https://ajxdirwzfutdjhwgdirm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFqeGRpcnd6ZnV0ZGpod2dkaXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2Mjk1NjMsImV4cCI6MjA2OTIwNTU2M30.wYQ5Bsmw-8qc_opP7w_Au5tWMTM3bXgVu1Z0LRrZQ-U';
+
+        async function verifyToken(token) {
+            try {
+                const response = await fetch(`${SUPABASE_URL}/auth/v1/verify`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY
+                    },
+                    body: JSON.stringify({
+                        type: 'signup',
+                        token: token
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error?.message || data.msg || 'Verification failed');
+                }
+
+                // Create user profile
+                try {
+                    const userId = data.user?.id;
+                    if (userId) {
+                        const profileResponse = await fetch(`${SUPABASE_URL}/rest/v1/profiles`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${data.access_token}`,
+                                'Prefer': 'return=minimal'
+                            },
+                            body: JSON.stringify({
+                                id: userId,
+                                plan: 'free',
+                                usage_count: 0,
+                                usage_limit: 50
+                            })
+                        });
+
+                        if (!profileResponse.ok) {
+                            console.error('Failed to create profile:', await profileResponse.text());
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error creating profile:', error);
+                }
+
+                return true;
+            } catch (error) {
+                console.error('Verification error:', error);
+                throw error;
+            }
+        }
+
+        window.addEventListener('load', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error-message').textContent = 'No verification token found in URL.';
+                return;
+            }
+
+            try {
+                await verifyToken(token);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('success').style.display = 'block';
+
+                // Try to open the extension automatically
+                document.getElementById('open-extension').click();
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error-message').textContent = error.message;
+            }
+        });
+    </script>
+</body>
+</html> 

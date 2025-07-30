@@ -1,0 +1,142 @@
+.plainsense-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999999;
+  transition: transform 0.2s;
+}
+
+.plainsense-button:hover {
+  transform: translateY(-2px);
+  background: #1d4ed8;
+}
+
+.plainsense-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000000;
+}
+
+.plainsense-modal h2 {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  color: #1a1a1a;
+}
+
+.plainsense-modal section {
+  margin-bottom: 20px;
+}
+
+.plainsense-modal h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #4a4a4a;
+}
+
+.plainsense-modal p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #666;
+}
+
+.plainsense-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999999;
+}
+
+.plainsense-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.plainsense-close:hover {
+  color: #1a1a1a;
+}
+
+.plainsense-loading {
+  text-align: center;
+  padding: 40px;
+  position: relative;
+}
+
+.plainsense-loading::after {
+  content: "Analyzing article...";
+  display: block;
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.plainsense-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2563eb;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.plainsense-copy-button {
+  position: absolute;
+  top: 24px;
+  right: 48px;
+  background: #f3f4f6;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #4b5563;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.plainsense-copy-button:hover {
+  background: #e5e7eb;
+}
+
+.plainsense-copy-button.copied {
+  background: #059669;
+  color: white;
+} 
